@@ -331,6 +331,7 @@ def _include_file(file_path: str, contexts: list, image_parts: list, client: MiM
         encoded = client.encode_image(path)
         if encoded:
             image_parts.append(encoded)
+        return
 
     try:
         content = path.read_text(encoding="utf-8", errors="replace")
