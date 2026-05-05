@@ -2,7 +2,7 @@
 
 Terminal AI coding assistant powered by [Xiaomi MiMo](https://platform.xiaomimimo.com) models.
 
-A CLI-native Agent that reads, writes, edits, and searches code — built for the [MiMo Orbit](https://100t.xiaomimimo.com) creator incentive program. Uses MiMo-V2.5-Pro's tool calling to form a full **read → analyze → execute → review** Agent loop.
+A CLI-native Agent that reads, writes, edits, and searches code. Uses MiMo-V2.5-Pro's tool calling capability to form a full **read → analyze → execute → review** Agent loop.
 
 ## Features
 
@@ -30,16 +30,14 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### 1. Get a free MiMo API key
+### 1. Get a MiMo API key
 
-Apply at the **[MiMo Orbit incentive program](https://100t.xiaomimimo.com)** — 100 trillion free tokens, deadline **May 28, 2026**.
-
-After approval, create your API key at **Subscription Management** in the [MiMo Platform](https://platform.xiaomimimo.com).
+Register at [platform.xiaomimimo.com](https://platform.xiaomimimo.com), create an API key from the Subscription Management page.
 
 ### 2. Set your API key
 
 ```bash
-export MIMO_API_KEY=your-tp-key-here
+export MIMO_API_KEY=your-key-here
 ```
 
 ### 3. Start chatting
@@ -55,7 +53,7 @@ python main.py --no-agent
 python main.py -m v25
 
 # One-shot: ask a question and exit
-python main.py -m pro -c "解释 main.py 的架构设计"
+python main.py -m pro -c "explain the architecture of main.py"
 
 # Load a previous session
 python main.py -s my-session
@@ -66,17 +64,17 @@ python main.py -s my-session
 When Agent mode is on (default for Pro/V2.5/Omni), MiMo Code provides the model with code manipulation tools:
 
 ```
-User: 帮我在 config.py 中添加一个 DEBUG 开关
+User: Add a DEBUG flag to config.py
 
 MiMo: Let me read the current config file first.
   🔧 read_file({"path":"config.py"})
      → DEFAULT_HOST = "localhost" ...
 
   🔧 edit_file({"path":"config.py","old_string":"DEFAULT_HOST ...","new_string":"DEBUG = False\n\nDEFAULT_HOST ..."})
-     → 已修改 config.py（1 处替换）
+     → Modified config.py (1 replacement)
 
-MiMo: 已在 config.py 顶部添加 `DEBUG = False`。你可以通过设置环境变量
-      `DEBUG=true` 来开启调试模式。
+MiMo: Added DEBUG = False at the top of config.py. Set the environment
+      variable DEBUG=true to enable debug mode.
 ```
 
 ### Agent Workflow
@@ -90,26 +88,27 @@ User Input
 └──────┬──────────────┘
        │
        ▼
-  响应中有 tool_calls？
+  Tool calls in response?
        │
    ┌───┴───┐
    │ YES   │ NO
    ▼       ▼
 ┌──────┐  ┌──────────┐
-│执行工具│  │ 直接输出  │
+│Execute│  │  Output  │
+│ tool │  │ directly │
 └──┬───┘  └──────────┘
    │
    ▼
 ┌──────────────────┐
-│ 工具结果加入 messages │
-│ role: tool        │
+│ Tool result added │
+│ to messages      │
 └──────┬───────────┘
        │
        ▼
-  回到 MiMo API（最多 8 轮）
+  Back to MiMo API (up to 8 rounds)
 ```
 
-Each round carries full tool definitions and accumulated context, consuming **5-50K tokens per user message** in typical Agent workflows.
+Each round carries full tool definitions and accumulated context, consuming significant tokens in typical Agent workflows.
 
 ## Usage
 
@@ -168,21 +167,6 @@ Options:
 | `search_code` | Grep across project text files | Read-only |
 | `run_shell` | Execute whitelisted read-only commands | Command whitelist |
 
-## Token Consumption Scenarios
-
-Typical usage patterns for assessing MiMo Orbit application needs:
-
-| Scenario | Token Usage | Description |
-|----------|-------------|-------------|
-| Simple chat | 500-2K | One-shot Q&A, no tools |
-| Agent single tool call | 3K-8K | read_file or search_code + response |
-| Agent multi-tool chain | 8K-30K | 2-4 tools in sequence |
-| Full-project analysis | 50K-200K | Multiple files loaded via @references |
-| Multi-modal analysis | 5K-20K | Image + text input, code generation |
-| Extended coding session | 50K-500K | 10+ Agent turns accumulating context |
-
-The Agent loop model of **read → analyze → edit → verify** consumes **5-10x more tokens** than simple chat because each iteration re-sends the full tool definitions and accumulated conversation history.
-
 ## Session Storage
 
 Sessions are saved as JSON in `~/.mimo-code/sessions/`:
@@ -210,10 +194,6 @@ Sessions are saved as JSON in `~/.mimo-code/sessions/`:
 | `MIMO_API_KEY` | MiMo API key (required) |
 | `MIMO_BASE_URL` | Custom API base URL (auto-detected if unset) |
 
-Base URL auto-detection:
-- `tp-*` keys → `token-plan-cn.xiaomimimo.com` (free tier)
-- `sk-*` keys → `api.xiaomimimo.com` (pay-per-use)
-
 ## Project Structure
 
 ```
@@ -229,7 +209,3 @@ mimo-code/
 ## License
 
 MIT — feel free to use, modify, and distribute.
-
----
-
-Built with [MiMo API](https://platform.xiaomimimo.com) · Apply for tokens at [100t.xiaomimimo.com](https://100t.xiaomimimo.com)
